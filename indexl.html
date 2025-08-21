@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Party Tickets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff0080, #ff8c00, #40e0d0, #8a2be2);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+      color: white;
+      text-align: center;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    .banner img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .container {
+      background: rgba(0,0,0,0.7);
+      padding: 30px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    }
+    input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .regular { background: #ff4081; color: white; }  /* neon pink */
+    .vip { background: #00e5ff; color: black; }      /* Electric cyan */
+  </style>
+</head>
+<body>
+
+  <!-- Banner Section -->
+  <div class="banner">
+    <img src="flyer.jpg" alt="TRAPPERS HOUSE PARTY"> <!-- 👈 Save your flyer as flyer.jpg in same folder -->
+  </div>
+
+  <!-- Ticket Purchase Box -->
+  <div class="container">
+    <h1>🎉 Get Your Party Ticket 🎉</h1>
+    <p>Choose your ticket type:</p>
+
+    <form id="ticketForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+
+      <button type="button" class="regular" onclick="payWithPaystack(100, 'Regular')">Regular - ₵1</button>
+      <button type="button" class="vip" onclick="payWithPaystack(200, 'VIP')">VIP - ₵2</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function payWithPaystack(amount, ticketType) {
+      let handler = PaystackPop.setup({
+        key: "pk_test_fa353240f33584590f4a9838f3868df28000f91a", // 🔑 Replace with your Paystack Public Key
+        email: document.getElementById("email").value,
+        amount: amount * 100, // Paystack uses pesewas (₵1 = 100)
+        currency: "GHS",
+        metadata: {
+          custom_fields: [
+            {
+              display_name: "Name",
+              variable_name: "name",
+              value: document.getElementById("name").value
+            },
+            {
+              display_name: "Ticket Type",
+              variable_name: "ticket_type",
+              value: ticketType
+            }
+          ]
+        },
+        callback: function(response) {
+          let ticketCode = ticketType.substring(0,3).toUpperCase() + "-" + Math.floor(Math.random() * 1000000);
+          document.getElementById("result").innerHTML =
+            `<h3>✅ Payment Successful!</h3>
+             <p>Ticket Type: <b>${ticketType}</b></p>
+             <p>Your Ticket Code: <b>${ticketCode}</b></p>
+             <p>Reference: ${response.reference}</p>`;
+        },
+        onClose: function() {
+          alert("Transaction was not completed, window closed.");
+        }
+      });
+      handler.openIframe();
+    }
+  </script>
+
+</body>
+</html>
